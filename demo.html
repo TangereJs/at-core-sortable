@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>at-core-sortable demo</title>
+  <script src="../webcomponentsjs/webcomponents-lite.js" charset="utf-8"></script>
+  <link rel="import" href="../polymer/polymer.html">
+  <link rel="import" href="../layout/layout.html">
+  <link rel="import" href="at-core-sortable.html">
+  <style media="screen">
+    .my-handle {
+      cursor: move;
+      cursor: -webkit-grabbing;
+      font-weight: bold;
+      font-size: 20px;
+      color: #5f9edf;
+      margin-right: 5px;
+    }
+    .list-item {
+      font-size: 20px;
+      margin-left: 5px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="vertical layout">
+    <div class="">
+      <h3>This is at-core-sortable demo</h3>
+      <p>
+        Click and drag the "sandwitch" icon to sort the elements
+      </p>
+    </div>
+    <div class="">
+      <at-core-sortable handle=".my-handle" animation="150">
+        <template is="dom-repeat" items="[&quot;list item one&quot;,&quot;list item two&quot;]">
+          <div class="list-item"><span class="my-handle">☰</span>{{item}}</div>
+        </template>
+      </at-core-sortable>
+    </div>
+  </div>
+</body>
+
+</html>

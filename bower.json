@@ -1,0 +1,8 @@
+{
+  "name": "at-core-sortable",
+  "private": true,
+  "dependencies": {
+    "polymer": "Polymer/polymer#0.8-preview",
+    "sortable": "IntranetFactory/Sortable",
+  }
+}
