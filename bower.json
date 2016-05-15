@@ -3,6 +3,6 @@
   "private": true,
   "dependencies": {
     "polymer": "Polymer/polymer#0.8-preview",
-    "sortable": "TangereJS/Sortable"
+    "sortable": "TangereJS/Sortable#master"
   }
 }
