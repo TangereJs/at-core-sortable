@@ -2,7 +2,8 @@
   "name": "at-core-sortable",
   "private": true,
   "dependencies": {
-    "polymer": "Polymer/polymer#0.8-preview",
-    "sortable": "TangereJS/Sortable#master"
+    "tangere": "TangereJs/tangere#0.8-preview",
+    "layout": "Polymer/layout#master",
+    "sortable": "TangereJs/Sortable#master"
   }
 }
