@@ -10,7 +10,7 @@
   Polymer({
     is: "at-core-sortable",
     properties: {
-      group             : { type: String, value: () => Math.random(), observer: "groupChanged" },
+      group             : { type: Object, value: function () {return {name: Math.random()};}, observer: "groupChanged" },
       sort              : { type: Boolean, value: true, observer: "sortChanged" },
       disabled          : { type: Boolean, value: false, observer: "disabledChanged" },
       store             : { type: Object, value: null, observer: "storeChanged" },
@@ -32,12 +32,13 @@
       draggable         : {},
       scroll            : {}
     },
-    created() {
+    created: function() {
       // override default DOM property behavior
+
       Object.defineProperties(this, {
-        draggable: { get() { return this._draggable || this.getAttribute("draggable") || ">*"}, set(value) { this._draggable = value; this.draggableChanged(value)} },
-        scroll: { get() { return this._scroll || JSON.parse(this.getAttribute("scroll") || "true") }, set(value) { this._scroll = value; this.scrollChanged(value)} }
-      })
+        draggable: { get: function() { return this._draggable || this.getAttribute("draggable") || ">*";}, set: function(value) { this._draggable = value; this.draggableChanged(value);} },
+        scroll: { get: function() { return this._scroll || JSON.parse(this.getAttribute("scroll") || "true"); }, set: function(value) { this._scroll = value; this.scrollChanged(value);} }
+      });
     },
     attached: function() {
       // Given
@@ -52,54 +53,89 @@
       //       <span>hello</span>
       //       <template is="dom-if">
       //     <tempalte is="dom-repeat">
-      var templates = this.querySelectorAll("template[is='dom-repeat']")
-      var template = templates[templates.length-1]
-      var options = {}
-      Object.keys(this.properties).forEach(key => {
-        options[key] = this[key]
-      })
-      this.sortable = Sortable.create(this, Object.assign(options, {
-        onUpdate: e => {
-          if (template) {
-            template.splice("items", e.newIndex, 0, template.splice("items", e.oldIndex, 1)[0])
-          }
-          this.fire("update", e)
-        },
-        onAdd: e => {
-          if (template) {
-            var froms = e.from.querySelectorAll("template[is='dom-repeat']")
-            var from = froms[froms.length-1]
-            var item = from.items[e.oldIndex]
-            template.splice("items", e.newIndex, 0, item)
-          }
-          this.fire("add", e)
-        },
-        onRemove: e => {
-          if (template) {
-            template.splice("items", e.oldIndex, 1)[0]
-          }
-          this.fire("remove", e)
-        },
-        onStart: e => {
-          this.fire("start", e)
-        },
-        onEnd: e => {
-          this.fire("end", e)
-        },
-        onSort: e => {
-          this.fire("sort", e)
-        },
-        onFilter: e => {
-          this.fire("filter", e)
-        },
-        onMove: e => {
-          this.fire("move", e)
-        }
-      }))
+      this.initialize();
     },
     detached: function() {
-      this.sortable.destroy()
+      this.sortable.destroy();
     },
+
+    initialize: function() {
+      var templates = this.querySelectorAll("template[is='dom-repeat']");
+      var template = templates[templates.length-1];
+      var options = {};
+      Object.keys(this.properties).forEach(function(key) {
+        options[key] = this[key];
+      }.bind(this));
+      var _this = this;
+      var eventCallbacks = {
+        onUpdate: function (e) {
+          if (template) {
+            template.splice("items", e.newIndex, 0, template.splice("items", e.oldIndex, 1)[0]);
+            /*
+            if (manuallyHandleUpdateEvents) {
+              template.items.splice(e.newIndex, 0, template.items.splice(e.oldIndex, 1)[0]);
+            } else {
+              template.splice("items", e.newIndex, 0, template.splice("items", e.oldIndex, 1)[0]);
+            }
+            */
+          }
+          _this.fire("update", e);
+        },
+        onAdd: function(e) {
+          if (template) {
+            var froms = e.from.querySelectorAll("template[is='dom-repeat']");
+            var from = froms[froms.length-1];
+            var model = from.modelForElement(e.item);
+            template.splice("items", e.newIndex, 0, model.item);
+            e.model = model;
+          }
+          _this.fire("add", e);
+        },
+        onRemove: function(e) {
+          // Donot remove if group.pull is clone
+          if (e.target.group.pull === 'clone') {
+            return false;
+          }
+          if (template) {
+            var item = template.splice("items", e.oldIndex, 1)[0];
+            e.model = {item: item};
+          }
+          _this.fire("remove", e);
+        },
+        onChoose: function(e) {
+          _this.fire("choose", e);
+        },
+        onStart: function(e) {
+          _this.fire("start", e);
+        },
+        onEnd: function(e) {
+          _this.fire("end", e);
+        },
+        onSort: function(e) {
+          _this.fire("sort", e);
+        },
+        onFilter: function(e) {
+          _this.fire("filter", e);
+        },
+        onMove: function(e) {
+          _this.fire("move", e);
+        },
+        onClone: function(e) {
+          _this.fire("clone", e);
+        }
+      };
+      Object.keys(eventCallbacks).forEach(function(name){
+        options[name] = eventCallbacks[name];
+      });
+      this.sortable = Sortable.create(this, options);
+    },
+
+    destroy: function() {
+      if(this.sortable) {
+        this.sortable.destroy();
+      }
+    },
+
     groupChanged             : function(value) { this.sortable && this.sortable.option("group", value) },
     sortChanged              : function(value) { this.sortable && this.sortable.option("sort", value) },
     disabledChanged          : function(value) { this.sortable && this.sortable.option("disabled", value) },
@@ -121,5 +157,5 @@
     forceFallbackChanged     : function(value) { this.sortable && this.sortable.option("forceFallback", value) },
     fallbackClassChanged     : function(value) { this.sortable && this.sortable.option("fallbackClass", value) },
     fallbackOnBodyChanged    : function(value) { this.sortable && this.sortable.option("fallbackOnBody", value) }
-  })
+  });
 </script>
