@@ -3,7 +3,7 @@
   "private": true,
   "dependencies": {
     "tangere": "TangereJs/tangere#master",
-    "layout": "Polymer/layout#master",
+    "layout": "TangereJs/layout#master",
     "sortable": "TangereJs/Sortable#master"
   },
   "version": "0.0.1.22"
